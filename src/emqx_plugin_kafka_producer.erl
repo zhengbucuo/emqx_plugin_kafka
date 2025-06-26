@@ -7,7 +7,9 @@
 -include("emqx_plugin_kafka.hrl").
 
 -export([
-    query_mode/1
+    resource_type/0
+    , on_health_check/2
+    , query_mode/1
     , callback_mode/0
     , on_start/2
     , on_get_status/2
@@ -18,6 +20,15 @@
     , on_remove_channel/3
     , on_query_async/4
 ]).
+
+resource_type() -> 
+    kafka_producer.
+
+on_health_check(_InstId, #{client_id := ClientId} = State) ->
+    case check_client_connectivity(ClientId) of
+        ok -> ok;
+        {error, {connectivity, Reason}} -> {error, Reason}
+    end.
 
 query_mode(_) ->
     simple_async_internal_buffer.
